@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8" />
+    <base href="%BASE_URL%" />
+    <link rel="icon" href="modern-logo/favicon.ico" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="A free, private PDF editor you can run on any infrastructure."
+    />
+    <link rel="apple-touch-icon" href="modern-logo/logo192.png" />
+    <link rel="manifest" href="manifest.json" />
+
+    <title>GSI-PDF</title>
+
+    <!-- Apply theme before first paint (no FOUC); mirrors ThemeProvider, which then refines it. -->
+    <script>
+      (function () {
+        try {
+          var p = JSON.parse(
+            localStorage.getItem("stirlingpdf_preferences") || "{}",
+          );
+          var mode = p.theme || "system";
+          var scheme =
+            mode === "light"
+              ? "light"
+              : mode === "dark"
+                ? "dark"
+                : window.matchMedia &&
+                    window.matchMedia("(prefers-color-scheme: dark)").matches
+                  ? "dark"
+                  : "light";
+          var r = document.documentElement;
+          r.setAttribute("data-theme", scheme);
+          r.setAttribute("data-app-theme", "custom");
+          r.setAttribute("data-accent", "default");
+          r.setAttribute("data-mantine-color-scheme", scheme);
+        } catch (e) {
+          /* first visit / unavailable storage: ThemeProvider handles it */
+        }
+      })();
+    </script>
+
+    <!-- Boot diagnostics: if the JS bundle fails to load, parse, or mount,
+      the static splash above would sit forever with no clue. Surface the
+      real error (and runtime identity) on the splash itself so a stuck boot
+      is self-reporting. Classic script + ES5 syntax on purpose: it must run
+      even where the modern bundle cannot. React removes #boot-splash on
+      mount, which silently retires this reporter. -->
+    <script>
+      (function () {
+        function showBootError(msg) {
+          try {
+            var splash = document.getElementById("boot-splash");
+            if (!splash) return;
+            var box = document.getElementById("boot-error");
+            if (!box) {
+              box = document.createElement("div");
+              box.id = "boot-error";
+              box.setAttribute(
+                "style",
+                "max-width:560px;margin:8px 24px 24px;padding:10px 12px;" +
+                  "font-size:12px;text-align:left;white-space:pre-wrap;" +
+                  "word-break:break-word;border:1px solid #fa5252;" +
+                  "border-radius:8px;background:rgba(250,82,82,.08);",
+              );
+              splash.appendChild(box);
+            }
+            box.textContent += (box.textContent ? "\n" : "") + msg;
+          } catch (e) {
+            /* never break boot to report boot */
+          }
+        }
+        // Capture phase: also catches resource load failures (e.g. the
+        // bundle 404ing), which do not reach window.onerror.
+        window.addEventListener(
+          "error",
+          function (e) {
+            var msg = "Error: ";
+            if (e && e.message) {
+              msg += e.message;
+              if (e.filename) msg += "\n@ " + e.filename + ":" + e.lineno;
+            } else if (e && e.target && e.target.src) {
+              msg += "gagal memuat " + e.target.src;
+            } else {
+              msg += String(e);
+            }
+            showBootError(msg);
+          },
+          true,
+        );
+        window.addEventListener("unhandledrejection", function (e) {
+          var r = e && e.reason;
+          showBootError(
+            "Unhandled: " + (r && r.message ? r.message : String(r)),
+          );
+        });
+        setTimeout(function () {
+          if (!document.getElementById("boot-splash")) return;
+          showBootError(
+            "Masih di splash setelah 25 dtk. " + navigator.userAgent,
+          );
+        }, 25000);
+      })();
+    </script>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root">
+      <div id="boot-splash">
+        <div style="font-size: 18px; font-weight: 600">GSI-PDF</div>
+        <div class="ring"></div>
+        <div style="font-size: 13px; opacity: 0.75">Menyiapkan GSI-PDF…</div>
+      </div>
+    </div>
+    <script type="module" src="src/index.tsx"></script>
+  </body>
+</html>
