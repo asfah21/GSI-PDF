@@ -1,7 +1,7 @@
 # Standalone unoserver image for Stirling-PDF remote UNO mode.
 # Pinned to unoserver 3.7 to match Stirling-PDF's client (avoids wire mismatch).
 
-FROM ubuntu:noble@sha256:33ceb71981b602c1a7443a53469e4dba065f7503eab3078a2d7a57a2ab987517
+FROM ubuntu:noble@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852
 
 ARG UNOSERVER_VERSION=3.7
 # ~120 MB of CJK fonts — opt-in.
